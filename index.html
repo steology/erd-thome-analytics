@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THOME Analytics - ERD Diagram v3.1</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+    h2 {
+      color: #38bdf8;
+      font-size: 1.3rem;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #1e40af;
+    }
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 32px;
+      font-size: 1rem;
+    }
+    .version-badge {
+      display: inline-block;
+      background: #166534;
+      color: #bbf7d0;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .change-badge {
+      display: inline-block;
+      background: #92400e;
+      color: #fef3c7;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    .dataset-info {
+      text-align: center;
+      background: #1e293b;
+      border-left: 4px solid #38bdf8;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      font-family: 'Courier New', monospace;
+      color: #cbd5e1;
+    }
+    .dataset-info strong {
+      color: #38bdf8;
+    }
+    .section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      min-height: 600px;
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 24px 0;
+      flex-wrap: wrap;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .info-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-left: 4px solid #38bdf8;
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.2s;
+    }
+    .info-card:hover {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+    }
+    .info-card.changed {
+      border-left-color: #4ade80;
+      background: #1a2e1a;
+    }
+    .info-card.new-card {
+      border-left-color: #fbbf24;
+      background: #2a2510;
+    }
+    .info-card h3 {
+      color: #38bdf8;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .info-card.changed h3 { color: #4ade80; }
+    .info-card.new-card h3 { color: #fbbf24; }
+    .info-card p {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .table-group {
+      margin-bottom: 16px;
+    }
+    .table-group h4 {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .flowchart-section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .flowchart-section h2 {
+      margin-top: 0;
+    }
+    .responsive-mermaid {
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    /* Change summary box */
+    .change-summary {
+      background: #162032;
+      border: 1px solid #1e40af;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+    .change-summary h3 {
+      color: #4ade80;
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+    .change-summary ul {
+      list-style: none;
+      padding: 0;
+    }
+    .change-summary li {
+      padding: 6px 0;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      border-bottom: 1px solid #1e293b;
+    }
+    .change-summary li:last-child { border-bottom: none; }
+    .change-summary li::before {
+      content: "\2192 ";
+      color: #4ade80;
+      font-weight: bold;
+    }
+    @media (max-width: 1024px) {
+      .legend {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 1.5rem; }
+      h2 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>THOME Analytics System - Entity Relationship Diagram <span class="version-badge">v3.1</span></h1>
+    <p class="subtitle">Daily Content-Sales Correlation Tracking System | BigQuery Star Schema | Cloud Run Architecture</p>
+
+    <div class="dataset-info">
+      <strong>Dataset:</strong> athome-cloud-412300.mart_overseas &nbsp;|&nbsp;
+      <strong>Pipeline:</strong> Cloud Run (Serverless) &nbsp;|&nbsp;
+      <strong>Team:</strong> AX Team
+    </div>
+
+    <!-- v3.1 Change Summary -->
+    <div class="change-summary">
+      <h3>v3.1 ERD 변경사항</h3>
+      <ul>
+        <li><code>log_workflow_runs</code> &rarr; <code>log_pipeline_runs</code> (Cloud Run 파이프라인 이력으로 rename)</li>
+        <li><code>fact_tiktok_sales.source</code> &rarr; <code>data_source</code> ('manual_upload' / 'api' - 향후 API 전환 대비)</li>
+        <li>Data Flow: n8n 워크플로우(WF1~WF5) &rarr; Cloud Run 서비스(svc-*) 8개로 전환</li>
+        <li>Google Sheets 수동 적재 경로 추가 (마케터 &rarr; Sheets &rarr; BQ Data Transfer)</li>
+        <li><code>log_pipeline_runs</code>: <code>workflow_name</code> &rarr; <code>service_name</code>, <code>trigger_type</code> 컬럼 추가</li>
+      </ul>
+    </div>
+
+    <!-- ERD Section -->
+    <div class="section">
+      <h2>데이터 모델 구조</h2>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #60a5fa;"></div>
+          <span>DIM (Dimension Table)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #34d399;"></div>
+          <span>FACT (Fact Table)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #fbbf24;"></div>
+          <span>AGG (Aggregation Table)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #6b7280;"></div>
+          <span>LOG (Pipeline Log)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #4ade80;"></div>
+          <span style="color:#4ade80;">v3.1 변경</span>
+        </div>
+      </div>
+
+      <div class="mermaid">
+erDiagram
+
+    %% ── Dimension Tables ──────────────────────────────────
+    dim_products {
+        STRING  product_id      PK  "제품 고유 ID"
+        STRING  sku             "SKU 코드"
+        STRING  asin            "Amazon ASIN"
+        STRING  tiktok_product_id  "TikTok Shop 제품 ID"
+        STRING  product_name
+        STRING  category
+        DATE    launch_date
+        BOOL    is_active
+        TIMESTAMP updated_at
+    }
+
+    dim_content {
+        STRING  content_id      PK  "콘텐츠 고유 ID"
+        STRING  product_id      FK  "dim_products.product_id"
+        STRING  platform        "tiktok / instagram / youtube"
+        STRING  content_type    "owned / paid / mention"
+        STRING  creator_handle
+        STRING  content_url
+        DATE    publish_date
+        TIMESTAMP created_at
+    }
+
+    %% ── Fact Tables ───────────────────────────────────────
+    fact_content_metrics {
+        DATE    metric_date     PK  "Partition Key"
+        STRING  content_id      PK  "FK dim_content"
+        STRING  platform
+        INT64   views
+        INT64   likes
+        INT64   comments
+        INT64   shares
+        INT64   saves
+        FLOAT64 engagement_rate
+        TIMESTAMP collected_at
+    }
+
+    fact_amazon_sales {
+        DATE    sale_date       PK  "Partition Key"
+        STRING  asin            PK  "FK dim_products"
+        STRING  marketplace_id  PK  "Composite PK"
+        STRING  sku
+        INT64   units_ordered
+        INT64   units_shipped
+        FLOAT64 ordered_revenue
+        INT64   sessions
+        INT64   page_views
+        FLOAT64 buy_box_percentage
+        FLOAT64 conversion_rate
+        TIMESTAMP collected_at
+    }
+
+    fact_tiktok_sales {
+        DATE    sale_date       PK  "Partition Key"
+        STRING  product_id      PK  "FK dim_products"
+        STRING  product_name
+        INT64   units_sold
+        FLOAT64 revenue
+        INT64   refund_units
+        FLOAT64 refund_amount
+        STRING  data_source     "v3.1 manual_upload or api"
+        TIMESTAMP collected_at
+    }
+
+    fact_search_volume {
+        DATE    search_date     PK  "Partition Key"
+        STRING  keyword         PK  "Composite PK"
+        STRING  platform        PK  "google / amazon"
+        STRING  data_source     PK  "Composite PK"
+        STRING  product_id      FK  "dim_products (optional)"
+        INT64   search_volume
+        INT64   search_rank
+        FLOAT64 click_share
+        FLOAT64 conversion_share
+        TIMESTAMP collected_at
+    }
+
+    fact_amazon_product_tracking {
+        DATE    tracking_date   PK  "Partition Key"
+        STRING  asin            PK  "FK dim_products"
+        INT64   bsr_rank
+        STRING  bsr_category
+        INT64   sub_category_rank
+        FLOAT64 price
+        INT64   review_count
+        FLOAT64 rating
+        INT64   estimated_monthly_sales
+        FLOAT64 estimated_monthly_revenue
+        STRING  data_source     "sp-api or manual_upload"
+        TIMESTAMP collected_at
+    }
+
+    fact_fba_inventory {
+        DATE    snapshot_date   PK  "Partition Key"
+        STRING  asin            PK  "FK dim_products"
+        STRING  sku
+        STRING  fnsku
+        INT64   fulfillable_quantity
+        INT64   inbound_working
+        INT64   inbound_shipped
+        INT64   inbound_receiving
+        INT64   reserved_quantity
+        INT64   unfulfillable_quantity
+        INT64   total_quantity
+        INT64   days_of_supply
+        TIMESTAMP collected_at
+    }
+
+    fact_amazon_ads {
+        DATE    ad_date         PK  "Partition Key (no FK)"
+        STRING  campaign_id     PK  "Composite PK"
+        STRING  campaign_name
+        STRING  campaign_type   "sp / sb / sd"
+        INT64   impressions
+        INT64   clicks
+        FLOAT64 ctr
+        FLOAT64 cost
+        FLOAT64 attributed_sales
+        INT64   attributed_units
+        FLOAT64 acos
+        FLOAT64 roas
+        STRING  attribution_window  "1d / 7d / 14d"
+        TIMESTAMP collected_at
+    }
+
+    %% ── Aggregation Table (derived from all FACTs) ───────
+    agg_daily_summary {
+        DATE    summary_date    PK  "집계 기준일"
+        INT64   total_content_views
+        INT64   tiktok_views
+        INT64   instagram_views
+        INT64   youtube_views
+        INT64   new_content_count
+        FLOAT64 avg_engagement_rate
+        INT64   total_units_sold
+        FLOAT64 total_revenue
+        INT64   amazon_units
+        FLOAT64 amazon_revenue
+        INT64   tiktok_units
+        FLOAT64 tiktok_revenue
+        FLOAT64 google_search_index
+        FLOAT64 amazon_search_index
+        FLOAT64 total_ad_spend
+        FLOAT64 total_ad_sales
+        FLOAT64 overall_acos
+        FLOAT64 overall_roas
+        FLOAT64 tacos
+        INT64   total_fulfillable_inventory
+        INT64   low_stock_sku_count
+        FLOAT64 views_to_sales_ratio
+        FLOAT64 organic_sales_ratio
+    }
+
+    %% ── Pipeline Log (v3.1 renamed) ─────────────────────
+    log_pipeline_runs {
+        STRING  run_id          PK  "실행 고유 ID"
+        STRING  service_name    "v3.1 Cloud Run svc name"
+        DATE    run_date        "Partition Key"
+        STRING  trigger_type    "v3.1 scheduled / manual / pubsub"
+        STRING  status          "success / partial / failed"
+        INT64   records_processed
+        STRING  error_message
+        FLOAT64 execution_time_sec
+        TIMESTAMP created_at
+    }
+
+    %% ── Relationships ───────────────────────────────────
+    dim_products    ||--|{  dim_content                  : "1:N  product_id"
+    dim_products    ||--o{  fact_amazon_sales             : "1:N  asin"
+    dim_products    ||--o{  fact_tiktok_sales             : "1:N  product_id"
+    dim_products    ||--o{  fact_search_volume            : "1:N  product_id"
+    dim_products    ||--|{  fact_amazon_product_tracking  : "1:N  asin"
+    dim_products    ||--|{  fact_fba_inventory            : "1:N  asin"
+    dim_content     ||--|{  fact_content_metrics          : "1:N  content_id"
+      </div>
+
+      <!-- Relationship Summary Table -->
+      <div style="margin-top: 32px; overflow-x: auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+          <thead>
+            <tr style="background:#1e40af; color:#e2e8f0;">
+              <th style="padding:10px 14px; text-align:left; border:1px solid #334155;">Parent Table</th>
+              <th style="padding:10px 14px; text-align:left; border:1px solid #334155;">Child Table</th>
+              <th style="padding:10px 14px; text-align:center; border:1px solid #334155;">Cardinality</th>
+              <th style="padding:10px 14px; text-align:left; border:1px solid #334155;">FK Column</th>
+              <th style="padding:10px 14px; text-align:left; border:1px solid #334155;">비고</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#1e293b;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#60a5fa; font-weight:600;">dim_products</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">dim_content</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#fbbf24; font-weight:700;">1 : N</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#cbd5e1;">product_id</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">하나의 제품에 여러 콘텐츠. 미연결 콘텐츠(mention)도 존재 가능</td>
+            </tr>
+            <tr style="background:#162032;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#60a5fa; font-weight:600;">dim_content</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">fact_content_metrics</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#fbbf24; font-weight:700;">1 : N</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#cbd5e1;">content_id</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">콘텐츠 1건에 365+ 일별 성과 행. svc-social-metrics가 수집</td>
+            </tr>
+            <tr style="background:#1e293b;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#60a5fa; font-weight:600;">dim_products</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">fact_amazon_sales</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#fbbf24; font-weight:700;">1 : N</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#cbd5e1;">asin</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">ASIN x marketplace_id x sale_date Composite PK. svc-amazon-sales가 T-3 수집</td>
+            </tr>
+            <tr style="background:#162032;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#60a5fa; font-weight:600;">dim_products</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">fact_tiktok_sales</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#fbbf24; font-weight:700;">1 : N</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#cbd5e1;">product_id</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">마케터 수동 Sheets 업로드 &rarr; BQ Transfer. data_source='manual_upload' <span class="change-badge">v3.1</span></td>
+            </tr>
+            <tr style="background:#1e293b;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#60a5fa; font-weight:600;">dim_products</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">fact_search_volume</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#fbbf24; font-weight:700;">1 : N</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#cbd5e1;">product_id</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">Composite PK: search_date + keyword + platform + data_source. product_id는 optional FK</td>
+            </tr>
+            <tr style="background:#162032;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#60a5fa; font-weight:600;">dim_products</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">fact_amazon_product_tracking</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#fbbf24; font-weight:700;">1 : N</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#cbd5e1;">asin</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">ASIN x tracking_date Composite PK. SP-API 또는 Jungle Scout 수동 업로드</td>
+            </tr>
+            <tr style="background:#1e293b;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#60a5fa; font-weight:600;">dim_products</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">fact_fba_inventory</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#fbbf24; font-weight:700;">1 : N</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#cbd5e1;">asin</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">ASIN x snapshot_date Composite PK. days_of_supply로 재고 경고 판단</td>
+            </tr>
+            <tr style="background:#162032;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8; font-style:italic;">FK 없음</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#34d399;">fact_amazon_ads</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#94a3b8;">독립</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#94a3b8;">&mdash;</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">campaign_id x ad_date Composite PK. 제품 수준 FK 없음 (campaign level)</td>
+            </tr>
+            <tr style="background:#1e293b;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8; font-style:italic;">파생 (FK 없음)</td>
+              <td style="padding:9px 14px; border:1px solid #fbbf24; color:#fbbf24;">agg_daily_summary</td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#94a3b8;">파생</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#94a3b8;">&mdash;</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">7개 FACT에서 svc-daily-aggregator (10:00 UTC)가 MERGE 생성 <span class="change-badge">v3.1</span></td>
+            </tr>
+            <tr style="background:#162032;">
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8; font-style:italic;">독립</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#4ade80;">log_pipeline_runs <span class="change-badge">v3.1</span></td>
+              <td style="padding:9px 14px; border:1px solid #334155; text-align:center; color:#94a3b8;">독립</td>
+              <td style="padding:9px 14px; border:1px solid #334155; font-family:monospace; color:#94a3b8;">&mdash;</td>
+              <td style="padding:9px 14px; border:1px solid #334155; color:#94a3b8;">Cloud Run 파이프라인 실행 이력. service_name + trigger_type 추가</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>테이블 통계</h3>
+          <div class="table-group">
+            <h4>Dimension Tables (2개)</h4>
+            <p>dim_products (PK: product_id) &mdash; 상품 마스터, 전 채널 통합 기준<br/>
+            dim_content (PK: content_id) &mdash; 콘텐츠 레지스트리, 3개 플랫폼</p>
+          </div>
+          <div class="table-group">
+            <h4>Fact Tables (7개)</h4>
+            <p>전부 날짜 + 식별자 Composite PK. 6개는 dim_products 또는 dim_content에 FK 보유. MERGE upsert로 idempotent loading</p>
+          </div>
+          <div class="table-group">
+            <h4>Aggregation / Log (2개)</h4>
+            <p>agg_daily_summary (파생, FK 없음), log_pipeline_runs (독립, Cloud Run 이력)</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>PK 구성 원칙</h3>
+          <p>
+            <strong>단일 PK:</strong> dim_products (product_id), dim_content (content_id), log_pipeline_runs (run_id), agg_daily_summary (summary_date)<br/><br/>
+            <strong>Composite PK:</strong> 7개 FACT 전부. 날짜 + 식별자 조합 &rarr; MERGE upsert의 기준 key. 재실행 시 중복 적재 원천 방지
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Partitioning 전략</h3>
+          <p>전체 Fact table은 날짜 기준 파티셔닝. 730일 partition expiry 설정으로 자동 아카이빙. CLUSTER BY로 자주 필터링하는 컬럼(platform, asin, keyword, campaign_type) 지정하여 쿼리 scan 최소화.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>핵심 산출 지표 (agg_daily_summary)</h3>
+          <p>svc-daily-aggregator가 매일 10:00 UTC 자동 계산:<br/>
+          views_to_sales_ratio, organic_sales_ratio, TACoS, ACoS, ROAS, low_stock_sku_count<br/><br/>
+          이 테이블이 Tableau 대시보드의 primary data source.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Flow Architecture Section (v3.1 - Cloud Run) -->
+    <div class="flowchart-section">
+      <h2>데이터 흐름 아키텍처 <span class="version-badge">v3.1 Cloud Run</span></h2>
+
+      <div class="mermaid responsive-mermaid">
+graph LR
+    A["데이터 소스"]
+    A1["TikTok / Instagram<br/>YouTube"]
+    A2["Amazon<br/>SP-API"]
+    A3["Amazon<br/>Ads API"]
+    A4["Google Trends<br/>Apify"]
+    A5["TikTok Seller Center<br/>(마케터 수동 CSV)"]
+    A6["Jungle Scout<br/>(마케터 수동)"]
+    A7["Google Sheets<br/>수동 적재 Template"]
+
+    A --> A1
+    A --> A2
+    A --> A3
+    A --> A4
+    A --> A5
+    A --> A6
+
+    A5 --> A7
+    A6 --> A7
+
+    C["Cloud Run Services<br/>(06:00-10:30 UTC)"]
+    C1["svc-social-metrics<br/>06:00"]
+    C2["svc-search-volume<br/>07:00"]
+    C3["svc-product-tracking<br/>07:30"]
+    C4["svc-amazon-sales<br/>08:00"]
+    C5["svc-amazon-ads<br/>08:30"]
+    C6["svc-tiktok-ingest<br/>09:00"]
+    C7["svc-daily-aggregator<br/>10:00"]
+    C8["svc-alert-sender<br/>10:30"]
+
+    A1 --> C1
+    A4 --> C2
+    A2 --> C3
+    A2 --> C4
+    A3 --> C5
+    A7 --> C6
+
+    C1 --> C
+    C2 --> C
+    C3 --> C
+    C4 --> C
+    C5 --> C
+    C6 --> C
+
+    B["BigQuery<br/>mart_overseas"]
+    B1["FACT 7개"]
+    B2["DIM 2개"]
+    B3["AGG 1개"]
+    B4["LOG 1개"]
+
+    C --> B
+    B --> B1
+    B --> B2
+    B --> B4
+
+    B1 --> C7
+    C7 --> B3
+
+    V["Tableau Dashboard"]
+    V1["콘텐츠-매출 상관"]
+    V2["광고 효율 TACoS"]
+    V3["재고 경고"]
+    V4["플랫폼별 비교"]
+
+    B3 --> V
+    V --> V1
+    V --> V2
+    V --> V3
+    V --> V4
+
+    B3 --> C8
+    C8 --> N["Slack / Email<br/>Daily Alert"]
+
+    T["Cloud Scheduler<br/>+ Pub/Sub"]
+    T --> C
+
+    style A fill:#1e40af,stroke:#38bdf8,color:#e2e8f0
+    style C fill:#065f46,stroke:#34d399,color:#e2e8f0
+    style B fill:#92400e,stroke:#fbbf24,color:#e2e8f0
+    style V fill:#1e3a8a,stroke:#60a5fa,color:#e2e8f0
+    style T fill:#581c87,stroke:#a78bfa,color:#e2e8f0
+    style A7 fill:#4c1d95,stroke:#a78bfa,color:#e2e8f0
+    style N fill:#7f1d1d,stroke:#f87171,color:#e2e8f0
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card changed">
+          <h3>Cloud Run Pipeline (v3.1)</h3>
+          <p><strong>06:00-08:30 UTC:</strong> 5개 수집 서비스가 순차 실행 &rarr; 7개 Fact table에 데이터 적재<br/>
+          <strong>09:00 UTC:</strong> svc-tiktok-ingest가 Sheets &rarr; BQ Data Transfer 트리거<br/>
+          <strong>10:00 UTC:</strong> svc-daily-aggregator가 agg_daily_summary MERGE 생성<br/>
+          <strong>10:30 UTC:</strong> svc-alert-sender가 Slack/Email daily alert 발송</p>
+        </div>
+
+        <div class="info-card changed">
+          <h3>Trigger & Orchestration (v3.1)</h3>
+          <p><strong>Cloud Scheduler:</strong> 각 서비스 스케줄 정의 (UTC cron)<br/>
+          <strong>Pub/Sub:</strong> 서비스 간 event 기반 의존성 관리. 수집 완료 publish &rarr; 집계 subscribe<br/>
+          <strong>Secret Manager:</strong> SP-API OAuth2, Ads API, Apify, Slack, SMTP, Sheets SA 중앙 관리</p>
+        </div>
+
+        <div class="info-card new-card">
+          <h3>수동 적재 Flow (v3.1 신규)</h3>
+          <p><strong>마케터:</strong> TikTok Seller Center CSV export + Jungle Scout 데이터 &rarr; Google Sheets template에 paste<br/>
+          <strong>자동 검증:</strong> Sheets 내장 validation 수식으로 row count, 필수 컬럼, 날짜 범위 체크<br/>
+          <strong>BQ Transfer:</strong> 09:00 UTC 자동 Sheets &rarr; BigQuery fact table 로딩<br/>
+          <strong>Alert:</strong> 09:30 UTC 미적재 시 Slack #marketing-analytics 알림</p>
+        </div>
+
+        <div class="info-card">
+          <h3>데이터 품질</h3>
+          <p>log_pipeline_runs에서 전체 서비스 실행 이력 추적. Composite key MERGE로 중복 방지. T-3 backfill로 SP-API 지연 데이터 보정. 7일 평균 대비 50%+ 하락 시 anomaly alert.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>Storage 최적화</h3>
+          <p>일별 partitioning으로 쿼리 scan cost 절감. 730일 partition expiry 자동 아카이빙. Clustering (platform, asin, keyword)으로 조회 성능 최적화.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>접근 제어</h3>
+          <p>Tableau 사용자: agg_daily_summary 기반 대시보드 접근<br/>
+          AX Team: 전체 테이블 조회 + Cloud Run 서비스 관리<br/>
+          Service Account: BigQuery Data Editor + Job User + Sheets Editor</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Documentation -->
+    <div class="section">
+      <h2>테이블 상세 정보</h2>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>dim_products</h3>
+          <p><strong>역할:</strong> 상품 마스터 (중심 Dimension)<br/>
+          <strong>PK:</strong> product_id<br/>
+          <strong>예상 규모:</strong> 10-50 SKU<br/>
+          <strong>갱신 주기:</strong> 수동/비정기<br/>
+          <strong>설명:</strong> ASIN, SKU, TikTok ID를 통해 전 채널 상품 통합. is_active flag로 트래킹 대상 관리</p>
+        </div>
+
+        <div class="info-card">
+          <h3>dim_content</h3>
+          <p><strong>역할:</strong> 콘텐츠 레지스트리<br/>
+          <strong>PK:</strong> content_id<br/>
+          <strong>FK:</strong> product_id &rarr; dim_products<br/>
+          <strong>content_type:</strong> owned / paid / mention<br/>
+          <strong>설명:</strong> TikTok/Instagram/YouTube 콘텐츠 메타데이터. svc-social-metrics가 신규 콘텐츠 자동 감지 후 등록</p>
+        </div>
+
+        <div class="info-card">
+          <h3>fact_content_metrics</h3>
+          <p><strong>역할:</strong> 콘텐츠 일별 성과 지표<br/>
+          <strong>MERGE Key:</strong> metric_date + content_id<br/>
+          <strong>FK:</strong> content_id &rarr; dim_content<br/>
+          <strong>Partition:</strong> metric_date / platform<br/>
+          <strong>수집:</strong> svc-social-metrics (Apify) 06:00 UTC<br/>
+          <strong>지표:</strong> views, likes, comments, shares, saves, engagement_rate</p>
+        </div>
+
+        <div class="info-card">
+          <h3>fact_amazon_sales</h3>
+          <p><strong>역할:</strong> Amazon 일별 매출/트래픽<br/>
+          <strong>MERGE Key:</strong> sale_date + asin + marketplace_id<br/>
+          <strong>FK:</strong> asin &rarr; dim_products<br/>
+          <strong>Partition:</strong> sale_date / marketplace, asin<br/>
+          <strong>수집:</strong> svc-amazon-sales (SP-API) 08:00 UTC, T-3 backfill<br/>
+          <strong>지표:</strong> units_ordered, revenue, sessions, page_views, buy_box%, conversion_rate</p>
+        </div>
+
+        <div class="info-card changed">
+          <h3>fact_tiktok_sales <span class="change-badge">v3.1</span></h3>
+          <p><strong>역할:</strong> TikTok Shop 일별 매출<br/>
+          <strong>MERGE Key:</strong> sale_date + product_id<br/>
+          <strong>FK:</strong> product_id &rarr; dim_products<br/>
+          <strong>Partition:</strong> sale_date / product_id<br/>
+          <strong>수집:</strong> 마케터 수동 Sheets 업로드 &rarr; svc-tiktok-ingest (BQ Transfer) 09:00 UTC<br/>
+          <strong>변경:</strong> source &rarr; <code>data_source</code> 컬럼. 'manual_upload' (현재) / 'api' (향후 전환 대비)</p>
+        </div>
+
+        <div class="info-card">
+          <h3>fact_search_volume</h3>
+          <p><strong>역할:</strong> 검색 트렌드 (일별)<br/>
+          <strong>MERGE Key:</strong> search_date + keyword + platform + data_source<br/>
+          <strong>FK:</strong> product_id &rarr; dim_products (optional)<br/>
+          <strong>Partition:</strong> search_date / platform, keyword<br/>
+          <strong>수집:</strong> svc-search-volume (Apify + SP-API) 07:00 UTC<br/>
+          <strong>지표:</strong> search_volume, search_rank, click_share, conversion_share</p>
+        </div>
+
+        <div class="info-card">
+          <h3>fact_amazon_product_tracking</h3>
+          <p><strong>역할:</strong> Amazon 상품 경쟁력 (일별)<br/>
+          <strong>MERGE Key:</strong> tracking_date + asin<br/>
+          <strong>FK:</strong> asin &rarr; dim_products<br/>
+          <strong>Partition:</strong> tracking_date / asin<br/>
+          <strong>수집:</strong> svc-product-tracking (SP-API) 07:30 UTC + Jungle Scout 수동 업로드<br/>
+          <strong>지표:</strong> BSR, sub-category rank, price, review_count, rating, estimated monthly sales/revenue</p>
+        </div>
+
+        <div class="info-card">
+          <h3>fact_fba_inventory</h3>
+          <p><strong>역할:</strong> FBA 재고 스냅샷 (일별)<br/>
+          <strong>MERGE Key:</strong> snapshot_date + asin<br/>
+          <strong>FK:</strong> asin &rarr; dim_products<br/>
+          <strong>Partition:</strong> snapshot_date / asin<br/>
+          <strong>수집:</strong> svc-product-tracking (SP-API FBA) 07:30 UTC<br/>
+          <strong>지표:</strong> fulfillable/inbound/reserved/unfulfillable qty, days_of_supply</p>
+        </div>
+
+        <div class="info-card">
+          <h3>fact_amazon_ads</h3>
+          <p><strong>역할:</strong> PPC 광고 캠페인 성과 (일별)<br/>
+          <strong>MERGE Key:</strong> ad_date + campaign_id<br/>
+          <strong>Partition:</strong> ad_date / campaign_type<br/>
+          <strong>수집:</strong> svc-amazon-ads (Ads API) 08:30 UTC<br/>
+          <strong>캠페인 유형:</strong> SP / SB (Sponsored Products / Brands)<br/>
+          <strong>지표:</strong> impressions, clicks, CTR, cost, attributed_sales, ACoS, ROAS, attribution window</p>
+        </div>
+
+        <div class="info-card">
+          <h3>agg_daily_summary</h3>
+          <p><strong>역할:</strong> 크로스 채널 일별 집계 (Tableau primary source)<br/>
+          <strong>PK:</strong> summary_date<br/>
+          <strong>생성:</strong> svc-daily-aggregator 10:00 UTC MERGE<br/>
+          <strong>산출 지표:</strong> views_to_sales_ratio, organic_sales_ratio, TACoS, ACoS, ROAS, low_stock_sku_count<br/>
+          <strong>설명:</strong> 플랫폼별 조회수, 채널별 매출, 광고비, 재고 현황을 1행으로 통합</p>
+        </div>
+
+        <div class="info-card changed">
+          <h3>log_pipeline_runs <span class="change-badge">v3.1 renamed</span></h3>
+          <p><strong>역할:</strong> Cloud Run 파이프라인 실행 이력<br/>
+          <strong>PK:</strong> run_id<br/>
+          <strong>Partition:</strong> run_date<br/>
+          <strong>변경:</strong> log_workflow_runs에서 rename. workflow_name &rarr; <code>service_name</code> (svc-* 매핑). <code>trigger_type</code> 컬럼 추가 (scheduled / manual / pubsub)<br/>
+          <strong>지표:</strong> status, records_processed, error_message, execution_time_sec</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; margin-top: 64px; padding-top: 32px; border-top: 1px solid #334155; color: #64748b; font-size: 0.9rem;">
+      <p>THOME Analytics System | mart_overseas v3.1 | AX Team | Cloud Run Architecture</p>
+      <p style="margin-top: 8px;">Last Updated: 2026-02-24</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      er: {
+        diagramPadding: 25,
+        layoutDirection: 'TB',
+        minEntityWidth: 120,
+        minEntityHeight: 85,
+        entityPadding: 15,
+        useMaxWidth: true,
+        fontSize: 14
+      },
+      flowchart: {
+        diagramMarginX: 30,
+        diagramMarginY: 30,
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'linear'
+      },
+      themeVariables: {
+        primaryColor: '#1e293b',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#64748b',
+        secondaryColor: '#334155',
+        tertiaryColor: '#0f172a',
+        darkMode: 'true'
+      }
+    });
+  </script>
+</body>
+</html>
